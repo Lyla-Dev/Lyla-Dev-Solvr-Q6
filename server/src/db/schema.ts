@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer} from 'drizzle-orm/sqlite-core'
 
 // 사용자 테이블 스키마
 export const users = sqliteTable('users', {
