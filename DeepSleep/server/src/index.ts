@@ -1,58 +1,31 @@
-import Fastify from 'fastify'
-import cors from '@fastify/cors'
-import env from './config/env'
-import { initializeDatabase, getDb } from './db'
-import runMigration from './db/migrate'
-import { createUserService } from './services/userService'
-import { createRoutes } from './routes'
-import { AppContext } from './types/context'
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import connectDB from './db'; // 데이터베이스 연결 함수
+import sleepRoutes from './routes/sleepRoutes'; // 새로 만든 수면 기록 라우터
 
-// Fastify 인스턴스 생성
-const fastify = Fastify({
-  logger: {
-    level: env.LOG_LEVEL,
-    transport: {
-      target: 'pino-pretty',
-      options: {
-        translateTime: 'HH:MM:ss Z',
-        ignore: 'pid,hostname'
-      }
-    }
-  }
-})
+dotenv.config(); // .env 파일 로드
 
-// 서버 시작 함수
-async function start() {
-  try {
-    // CORS 설정
-    await fastify.register(cors, {
-      origin: env.CORS_ORIGIN,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      credentials: true
-    })
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-    // 데이터베이스 마이그레이션 및 초기화
-    await runMigration()
-    await initializeDatabase()
+// 미들웨어 설정
+app.use(cors()); // CORS 활성화
+app.use(express.json()); // JSON 요청 본문 파싱
 
-    // 서비스 및 컨텍스트 초기화
-    const db = await getDb()
-    const context: AppContext = {
-      userService: createUserService({ db })
-    }
+// 데이터베이스 연결
+connectDB();
 
-    // 라우트 등록
-    await fastify.register(createRoutes(context))
+// 라우터 등록
+app.use('/api', sleepRoutes); // '/api' 경로 접두사 아래에 수면 기록 라우터 연결
 
-    // 서버 시작
-    await fastify.listen({ port: env.PORT, host: env.HOST })
-
-    console.log(`서버가 http://${env.HOST}:${env.PORT} 에서 실행 중입니다.`)
-  } catch (error) {
-    fastify.log.error(error)
-    process.exit(1)
-  }
-}
+// 기본 라우트 (선택 사항)
+app.get('/', (req, res) => {
+  res.send('Sleep Tracker API Server is running!');
+});
 
 // 서버 시작
-start()
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+  console.log(`http://localhost:${PORT}`);
+});

@@ -1,18 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "esModuleInterop": true,
+    "target": "es2017",
+    "module": "commonjs",
+    "lib": ["es2017", "dom"], // 필요에 따라 dom을 추가
+    "outDir": "./dist",
+    "rootDir": "./src",
     "strict": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "dist",
-    "rootDir": "src",
-    "sourceMap": true,
-    "declaration": true,
-    "resolveJsonModule": true
+    "esModuleInterop": true, // 이것이 중요합니다!
+    "skipLibCheck": true, // 라이브러리 타입 체크 건너뛰기 (가끔 문제 해결에 도움)
+    "forceConsistentCasingInFileNames": true, // 파일 이름 대소문자 일관성 강제
+    "resolveJsonModule": true // JSON 모듈 임포트 허용
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
 }

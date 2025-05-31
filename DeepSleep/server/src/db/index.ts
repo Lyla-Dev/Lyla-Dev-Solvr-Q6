@@ -1,21 +1,21 @@
-import { drizzle } from 'drizzle-orm/better-sqlite3'
-import Database from 'better-sqlite3'
-import env from '../config/env'
-import * as schema from './schema'
-import { Database as DrizzleDatabase } from '../types/database'
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
-let db: DrizzleDatabase | null = null
+dotenv.config(); // .env 파일 로드
 
-export async function getDb(): Promise<DrizzleDatabase> {
-  if (!db) {
-    const sqlite = new Database(env.DATABASE_URL)
-    db = drizzle(sqlite, { schema }) as DrizzleDatabase
+const connectDB = async () => {
+  try {
+    const mongoUri = process.env.MONGO_URI;
+    if (!mongoUri) {
+      console.error('MongoDB URI가 설정되지 않았습니다. .env 파일을 확인해주세요.');
+      process.exit(1); // 환경 변수가 없으면 종료
+    }
+    await mongoose.connect(mongoUri);
+    console.log('MongoDB 연결 성공!');
+  } catch (err: any) {
+    console.error('MongoDB 연결 실패:', err.message);
+    process.exit(1); // 오류 발생 시 종료
   }
-  return db
-}
+};
 
-export async function initializeDatabase(): Promise<DrizzleDatabase> {
-  return getDb()
-}
-
-export default { initializeDatabase, getDb }
+export default connectDB;
